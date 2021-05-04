@@ -1,13 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import Group
 from django.shortcuts import render, redirect
 
-from .decorators import unathenticated_user
+from .decorators import unathenticated_user, allowed_users
 from .forms import CreateUserForm
 
 
 @login_required(login_url='/login')
+# @allowed_users(allowed_roles=['admin'])
 def index(request):
     return render(request, 'shopify_images/index.html')
 
@@ -18,10 +20,15 @@ def registerPage(request):
     if request.method == 'POST':
         form = CreateUserForm(request.POST)
         if form.is_valid():
-            form.save()
-            user = form.cleaned_data.get('username')
-            messages.success(request, 'Account was created for ' + user)
-            return redirect('/login/')
+            user = form.save()
+            username = form.cleaned_data.get('username')
+
+            group = Group.objects.get(name='user')
+            user.groups.add(group)
+
+            messages.success(request, 'Account was created for ' + username)
+
+            return redirect('/login')
 
     context = {'form': form}
     return render(request, 'shopify_images/register.html', context)
