@@ -1,3 +1,20 @@
-<h1>Index</h1>
-<p>Hello, {{request.user}}</p>
-<a href="/logout">Logout</a>
+{% extends 'shopify_images/main.html' %}
+
+{% block content %}
+    <h3>Index</h3>
+    <form method = "post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload</button>
+    </form>
+    <p>{{request.user.image.all}}</p>
+    {% for image in request.user.image.all %}
+        <div class="col-md-3 col-sm-4 col-xs-6">
+          <a href="{{ image.image }}" class="thumbnail">
+              <img src="{{ image.image }}" alt="Image" class="img-responsive">
+          </a>
+        </div>
+    {% empty %}
+        <p>No images uploaded</p>
+    {% endfor %}
+{% endblock %}

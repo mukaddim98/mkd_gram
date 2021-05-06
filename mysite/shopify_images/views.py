@@ -2,16 +2,34 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from .decorators import unathenticated_user, allowed_users
-from .forms import CreateUserForm
+from .forms import CreateUserForm, ImageForm
 
 
 @login_required(login_url='/login')
 # @allowed_users(allowed_roles=['admin'])
 def index(request):
-    return render(request, 'shopify_images/index.html')
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save()
+            return redirect('success')
+    else:
+        form = ImageForm()
+    return render(request, 'shopify_images/index.html', {'form': form})
+
+
+def success(request):
+    return HttpResponse('successfully uploaded')
+
+
+@login_required(login_url='/login')
+def myImagesPage(request):
+    return render(request, 'shopify_images/my_images.html')
 
 
 @unathenticated_user
@@ -32,6 +50,7 @@ def registerPage(request):
 
     context = {'form': form}
     return render(request, 'shopify_images/register.html', context)
+
 
 @unathenticated_user
 def loginPage(request):
