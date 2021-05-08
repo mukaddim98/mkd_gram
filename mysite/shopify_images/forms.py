@@ -14,4 +14,6 @@ class CreateUserForm(UserCreationForm):
 class ImageForm(forms.ModelForm):
     class Meta:
         model = Image
-        fields = ['file_name', 'image', 'privacy']
+        fields = ['file_name', 'image', 'privacy', 'user']
+        exclude = ['user']
+

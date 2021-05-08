@@ -7,29 +7,21 @@ from django.shortcuts import render, redirect
 
 from .decorators import unathenticated_user, allowed_users
 from .forms import CreateUserForm, ImageForm
+from .models import Image
 
 
 @login_required(login_url='/login')
 # @allowed_users(allowed_roles=['admin'])
 def index(request):
-    if request.method == 'POST':
-        form = ImageForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            form.save()
-            return redirect('success')
-    else:
-        form = ImageForm()
-    return render(request, 'shopify_images/index.html', {'form': form})
-
-
-def success(request):
-    return HttpResponse('successfully uploaded')
+    form = postImage(request)
+    all_public_images = Image.objects.all().filter(privacy="Public")
+    return render(request, 'shopify_images/index.html', {'form': form, 'all_public_images': all_public_images})
 
 
 @login_required(login_url='/login')
 def myImagesPage(request):
-    return render(request, 'shopify_images/my_images.html')
+    form = postImage(request)
+    return render(request, 'shopify_images/my_images.html', {'form': form})
 
 
 @unathenticated_user
@@ -72,3 +64,16 @@ def loginPage(request):
 def logoutUser(request):
     logout(request)
     return redirect('/login')
+
+
+def postImage(request):
+    if request.method == 'POST':
+        form = ImageForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            image_uploader = form.save(commit=False)
+            image_uploader.user = request.user  # The logged-in user
+            image_uploader.save()
+    else:
+        form = ImageForm()
+    return form
