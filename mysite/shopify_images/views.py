@@ -14,14 +14,15 @@ from .models import Image
 # @allowed_users(allowed_roles=['admin'])
 def index(request):
     form = postImage(request)
-    all_public_images = Image.objects.all().filter(privacy="Public")
+    all_public_images = Image.objects.all().filter(privacy="Public").order_by('-date_created')
     return render(request, 'shopify_images/index.html', {'form': form, 'all_public_images': all_public_images})
 
 
 @login_required(login_url='/login')
 def myImagesPage(request):
     form = postImage(request)
-    return render(request, 'shopify_images/my_images.html', {'form': form})
+    all_user_images = Image.objects.all().filter(user=request.user).order_by('-date_created')
+    return render(request, 'shopify_images/my_images.html', {'form': form, 'all_user_images': all_user_images})
 
 
 @unathenticated_user
@@ -74,6 +75,7 @@ def postImage(request):
             image_uploader = form.save(commit=False)
             image_uploader.user = request.user  # The logged-in user
             image_uploader.save()
+            return redirect('/')
     else:
         form = ImageForm()
     return form

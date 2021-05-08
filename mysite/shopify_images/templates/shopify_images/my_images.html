@@ -5,7 +5,7 @@
 
     {% include 'shopify_images/image_uploader.html' %}
 
-    {% for image in request.user.image.all %}
+    {% for image in all_user_images %}
         <div class="col-md-3 col-sm-4 col-xs-6">
           <a href="{{ image.image.url }}" class="thumbnail">
               <img src="{{ image.image.url }}" alt="Image" class="img-responsive" width="300px">
