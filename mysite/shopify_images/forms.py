@@ -16,4 +16,7 @@ class ImageForm(forms.ModelForm):
         model = Image
         fields = ['file_name', 'image', 'privacy', 'user']
         exclude = ['user']
+        widgets = {
+            'image': forms.ClearableFileInput(attrs={'multiple': True}),
+        }
 

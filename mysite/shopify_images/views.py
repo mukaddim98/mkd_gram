@@ -13,16 +13,18 @@ from .models import Image
 @login_required(login_url='/login')
 # @allowed_users(allowed_roles=['admin'])
 def index(request):
-    form = postImage(request)
+    postImage(request)
+    form = ImageForm()
     all_public_images = Image.objects.all().filter(privacy="Public").order_by('-date_created')
     return render(request, 'shopify_images/index.html', {'form': form, 'all_public_images': all_public_images})
 
 
 @login_required(login_url='/login')
 def myImagesPage(request):
-    form = postImage(request)
+    postImage(request)
+    form = ImageForm()
     all_user_images = Image.objects.all().filter(user=request.user).order_by('-date_created')
-    return render(request, 'shopify_images/my_images.html', {'form': form, 'all_user_images': all_user_images})
+    return render(request, 'shopify_images/my_uploads.html', {'form': form, 'all_user_images': all_user_images})
 
 
 @unathenticated_user
@@ -69,13 +71,15 @@ def logoutUser(request):
 
 def postImage(request):
     if request.method == 'POST':
-        form = ImageForm(request.POST, request.FILES)
+        data = request.POST
+        images = request.FILES.getlist('image')
 
-        if form.is_valid():
-            image_uploader = form.save(commit=False)
-            image_uploader.user = request.user  # The logged-in user
-            image_uploader.save()
-            return redirect('/')
-    else:
-        form = ImageForm()
-    return form
+        for image in images:
+            img = Image.objects.create(
+                file_name=data['file_name'],
+                privacy=data['privacy'],
+                image=image,
+                user=request.user,
+            )
+
+        return redirect('/')
