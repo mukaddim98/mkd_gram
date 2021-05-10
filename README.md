@@ -3,8 +3,6 @@ MKD Gram
 
 MKD Gram is a Django app where you can upload and share images from your local device. You can either set your image to 'Public' where everyone can see in the public uploads tab, or you can set it to 'Private' where only you can see. As of now, this version of the app only allows you to add/upload images. You cannot edit, delete or search images.
 
-Detailed documentation is in the "docs" directory.
-
 Quick start
 -----------
 
